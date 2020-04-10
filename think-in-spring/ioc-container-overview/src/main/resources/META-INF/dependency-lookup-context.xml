@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="lookupIocService" class="com.index.apache.think.in.spring.ioc.overview.service.impl.LookupIocService">
+        <property name="type" value="lookup"/>
+    </bean>
+
+    <bean id="injectionIocService" class="com.index.apache.think.in.spring.ioc.overview.service.impl.InjectionIocService">
+        <property name="type" value="autowiring"/>
+    </bean>
+
+    <bean id="objectFactory" class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName" value="lookupIocService"/>
+    </bean>
+
+</beans>
