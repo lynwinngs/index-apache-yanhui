@@ -3,13 +3,25 @@
 ### 依赖查找
 
 - 根据 Bean 名称查找
-    + 实施查找
-    + 延迟查找
+    + 实施查找 
+    
+        BeanFactory#getBean(String name)
+    + 延迟查找 
+    
+        ObjectFactory#getObject()
 - 根据 Bean 类型查找
-    + 单个 Bean 对象
+    + 单个 Bean 对象 
+    
+        BeanFactory#getBean(Class<T> requiredType)
     + 集合 Bean 对象
-- 根据 Bean 名称 + 类型查找
+    
+        ListableBeanFactory#getBeansOfType(Class<T> type)
+- 根据 Bean 名称 + 类型查找 
+
+    BeanFactory#getBean(String name, Class<T> requiredType)
 - 根据 Java 注解查找
+
+    ListableBeanFactory#getBeansWithAnnotation(Class<? extends Annotation> annotationType)
     + 单个 Bean 对象
     + 集合 Bean 对象
     
@@ -39,6 +51,7 @@
     + 基于 Properties 文件
     + 基于 Java 注解
     + 基于 Java API
+    + 通过 Groovy 进行 DSL 配置
 - Ioc 容器配置
     + 基于 XML 文件
     + 基于 Java 注解
