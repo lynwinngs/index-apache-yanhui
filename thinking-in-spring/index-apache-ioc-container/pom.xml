@@ -6,16 +6,19 @@
         <artifactId>index-apache-nuwa</artifactId>
         <groupId>com.index.apache</groupId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../index-apache-nuwa/pom.xml</relativePath>
+        <relativePath>../../../index-apache-nuwa/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>thinking-in-spring</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>ioc-container-overview</module>
-        <module>index-apache-ioc-container</module>
-    </modules>
+    <artifactId>index-apache-ioc-container</artifactId>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>
