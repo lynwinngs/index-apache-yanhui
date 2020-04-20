@@ -1,5 +1,11 @@
 package com.index.apache.think.in.spring.beans.entity;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 /**
  * @ClassName: User
  * @Description: 用户 bean
@@ -7,11 +13,29 @@ package com.index.apache.think.in.spring.beans.entity;
  * @Date: 2020/4/19 20:45
  * @Version： 1.0
  */
-public class User {
+public class User implements InitializingBean, DisposableBean {
 
     private Long id;
 
     private String name;
+
+    @PostConstruct
+    public void init(){
+        System.out.println("@PostConstruct 初始化中...");
+    }
+
+    @PreDestroy
+    public void done(){
+        System.out.println("@PreDestroy 销毁中...");
+    }
+
+    public void initMethod(){
+        System.out.println("bean 初始化中...");
+    }
+
+    public void destroyMethod(){
+        System.out.println("bean 销毁中...");
+    }
 
     public Long getId() {
         return id;
@@ -42,5 +66,20 @@ public class User {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("DisposableBean 销毁中...");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("InitializingBean 初始化中...");
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        System.out.println("bean 回收");
     }
 }
