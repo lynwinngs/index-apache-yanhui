@@ -7,7 +7,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
 /**
  * @ClassName: BeanFactoryAsIoCContainer
- * @Description: 注解模式的 {@link BeanFactory} 作为 IoC 容器
+ * @Description: {@link BeanFactory} 作为 IoC 容器
  * @Author: Xiao Xuezhi
  * @Date: 2020/4/12 22:21
  * @Version： 1.0
