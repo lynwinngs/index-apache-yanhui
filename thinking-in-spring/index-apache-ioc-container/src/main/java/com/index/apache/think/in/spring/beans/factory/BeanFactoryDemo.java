@@ -31,6 +31,7 @@ public class BeanFactoryDemo {
         Object redisTemplate = applicationContext.getBean("redisTemplate");
         System.out.println(redisTemplate);
 
+        // 根据泛型类型获取 bean
         // BeanFactory#getBeanProvider(ResolvableType) 获取 ObjectFactory
         Field field = BeanFactoryDemo.class.getDeclaredField("redisTemplate");
         ResolvableType resolvableType = ResolvableType.forField(field);
