@@ -26,6 +26,7 @@ public abstract class UserManager {
         return user;
     }
 
+    // 如果没有 Lookup 注解，抽象类无法实例化，会报错 BeanCreationException
     @Lookup(value = "user")
     protected abstract User createUser();
 
