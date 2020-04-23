@@ -1,4 +1,4 @@
-package com.index.apache.think.in.spring.method.lookup;
+package com.index.apache.think.in.spring.lookup;
 
 import com.index.apache.think.in.spring.beans.entity.User;
 import org.springframework.beans.BeansException;
@@ -9,16 +9,22 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 
 import java.util.Random;
-import java.util.RandomAccess;
 
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
 /**
  * @ClassName ApplicationContextAwareDemo
- * @Description {@link ApplicationContextAware} 解决单例
+ * @Description {@link ApplicationContextAware} 解决单例 bean 依赖 原型 bean ，生命周期不一致的情况
  * @Author xiaoxuezhi
  * @DATE 2020/4/23 10:21
  * @Version 1.0
+ * <p>
+ * https://docs.spring.io/spring/docs/5.2.5.RELEASE/spring-framework-reference/core.html#beans-factory-method-injection
+ * <p>
+ * 参考官方文档，这种方式对 Spring 框架有强依赖性，不建议使用
+ * 推荐使用  Lookup Method Injection 方式
+ * @see LookupMethodInjectionDemo
+ * @see UserManager
  **/
 public class ApplicationContextAwareDemo implements ApplicationContextAware {
 
