@@ -5,6 +5,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
+import java.util.Arrays;
+
 /**
  * @ClassName: LifecycleOfBeanDemo
  * @Description: bean 的生命周期
@@ -21,6 +23,14 @@ public class LifecycleOfBeanDemo {
         System.out.println("准备初始化容器");
         applicationContext.refresh();
         System.out.println("容器初始化完成");
+
+        // 获取 bean 的名称是通过 bean definition，因此不需要 bean 初始化，只需要 BeanFactory 创建完成即可获得
+        // 此处使用 lazy bean 来证明不需要初始化即可获得 bean 名称
+        // 过程：
+        // org.springframework.context.support.AbstractApplicationContext#refresh ->
+        // org.springframework.context.support.AbstractApplicationContext#obtainFreshBeanFactory ->
+        // getBeanNamesForType 此时已可以获得 bean name
+        System.out.println(Arrays.asList(applicationContext.getBeanNamesForType(LifecycleOfBeanDemo.class)));
 
         System.out.println(applicationContext.getBean(User.class));
 
