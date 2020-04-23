@@ -2,6 +2,7 @@ package com.index.apache.think.in.spring.cloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
 
 /**
  * @ClassName: SpringCloudServerApplication
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Version： 1.0
  */
 @SpringBootApplication
+@EnableConfigServer
 public class SpringCloudServerApplication {
 
     public static void main(String[] args) {
