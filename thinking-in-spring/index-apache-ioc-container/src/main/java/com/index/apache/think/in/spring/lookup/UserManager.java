@@ -12,6 +12,7 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 /**
  * @ClassName: UserManager
  * @Description: 通过  Lookup Method Injection 方式解决单例 bean 依赖 原型 bean ，生命周期不一致的情况
+ * 原理：对标注 @Lookup 注解 或在 xml 使用 lookup-method 属性的类进行 CGLib 动态代理，生成子类
  * @Author: Xiao Xuezhi
  * @Date: 2020/4/23 21:55
  * @Version： 1.0
