@@ -7,7 +7,7 @@
         http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
     <import resource="dependency-lookup-context.xml"/>
 
-    <bean id="dependencyController" class="com.index.apache.think.in.spring.ioc.overview.controller.DependencyController"
+    <bean id="dependencyController" class="com.index.apache.thinking.in.spring.ioc.overview.controller.DependencyController"
           autowire="byType"><!-- auto-wiring -->
         <!-- 手动配置 -->
         <!--<property name="iocServices">

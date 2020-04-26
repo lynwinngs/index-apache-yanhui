@@ -4,11 +4,11 @@
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="lookupIocService" class="com.index.apache.think.in.spring.ioc.overview.service.impl.LookupIocService">
+    <bean id="lookupIocService" class="com.index.apache.thinking.in.spring.ioc.overview.service.impl.LookupIocService">
         <property name="type" value="lookup"/>
     </bean>
 
-    <bean id="injectionIocService" class="com.index.apache.think.in.spring.ioc.overview.service.impl.InjectionIocService">
+    <bean id="injectionIocService" class="com.index.apache.thinking.in.spring.ioc.overview.service.impl.InjectionIocService">
         <property name="type" value="autowiring"/>
     </bean>
 

@@ -4,20 +4,20 @@
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="user-by-static-method" class="com.index.apache.think.in.spring.beans.entity.User"
+    <bean id="user-by-static-method" class="com.index.apache.thinking.in.spring.beans.entity.User"
           factory-method="createUser">
     </bean>
 
-    <bean id="user-by-instance-method" class="com.index.apache.think.in.spring.beans.entity.User"
+    <bean id="user-by-instance-method" class="com.index.apache.thinking.in.spring.beans.entity.User"
           factory-bean="userFactory" factory-method="getUser">
 
     </bean>
 
-    <bean id="userFactory" class="com.index.apache.think.in.spring.beans.entity.DefaultUserFactory"/>
+    <bean id="userFactory" class="com.index.apache.thinking.in.spring.beans.entity.DefaultUserFactory"/>
 
-    <bean id="user-by-factory-bean" class="com.index.apache.think.in.spring.beans.entity.UserFactoryBean"/>
+    <bean id="user-by-factory-bean" class="com.index.apache.thinking.in.spring.beans.entity.UserFactoryBean"/>
 
     <bean id="user-by-service-loader" class="org.springframework.beans.factory.serviceloader.ServiceLoaderFactoryBean">
-        <property name="serviceType" value="com.index.apache.think.in.spring.beans.entity.UserFactory"/>
+        <property name="serviceType" value="com.index.apache.thinking.in.spring.beans.entity.UserFactory"/>
     </bean>
 </beans>
