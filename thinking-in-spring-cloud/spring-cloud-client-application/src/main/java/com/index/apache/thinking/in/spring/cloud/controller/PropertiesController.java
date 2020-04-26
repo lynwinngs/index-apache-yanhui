@@ -1,7 +1,7 @@
 package com.index.apache.thinking.in.spring.cloud.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
+import com.index.apache.thinking.in.spring.cloud.service.PropertiesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/properties")
-@RefreshScope // /actuator/refresh 刷新，需要标注该注解，才能影响这个类的属性
 public class PropertiesController {
 
-    @Value("${global.author}")
-    private String author;
+    @Autowired
+    private PropertiesService propertiesService;
 
     @GetMapping("/author")
     public String getAuthor() {
-        return author;
+        // 每一次调用刷新以后，被标注 @RefreshScope 注解的 bean 都将生成新的实例，参见其 javadoc
+        System.out.println(propertiesService);
+        return propertiesService.getAuthor();
     }
 }
