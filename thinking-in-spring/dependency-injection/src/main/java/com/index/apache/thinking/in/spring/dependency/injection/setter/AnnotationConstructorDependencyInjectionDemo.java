@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Bean;
  * @DATE 2020/4/26 11:48
  * @Version 1.0
  **/
-public class AnnotationSetterDependencyInjectionDemo {
+public class AnnotationConstructorDependencyInjectionDemo {
 
     public static void main(String[] args) {
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
 
-        applicationContext.register(AnnotationSetterDependencyInjectionDemo.class);
+        applicationContext.register(AnnotationConstructorDependencyInjectionDemo.class);
 
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(applicationContext);
 
@@ -35,9 +35,7 @@ public class AnnotationSetterDependencyInjectionDemo {
 
     @Bean
     public UserHolder userHolder(User user) {
-        UserHolder userHolder = new UserHolder();
-        userHolder.setUser(user);
-        return userHolder;
+        return new UserHolder(user);
     }
 }
                                                   
