@@ -4,8 +4,8 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
 /**
- * @ClassName XmlSetterDependencyInjectionDemo
- * @Description 基于 xml 方式的 setter 依赖注入 demo
+ * @ClassName XmlConstructorDependencyInjectionDemo
+ * @Description 基于 xml 方式的构造器依赖注入 demo
  * @Author xiaoxuezhi
  * @DATE 2020/4/26 10:52
  * @Version 1.0
