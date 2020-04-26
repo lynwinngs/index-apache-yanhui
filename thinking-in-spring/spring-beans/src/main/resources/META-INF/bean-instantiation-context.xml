@@ -8,6 +8,8 @@
           factory-method="createUser">
     </bean>
 
+    <alias name="user-by-static-method" alias="user"/>
+
     <bean id="user-by-instance-method" class="com.index.apache.thinking.in.spring.beans.entity.User"
           factory-bean="userFactory" factory-method="getUser">
 

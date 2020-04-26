@@ -1,5 +1,8 @@
 package com.index.apache.thinking.in.spring.dependency.injection.setter;
 
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+
 /**
  * @ClassName XmlSetterDependencyInjectionDemo
  * @Description 基于 xml 方式的 setter 依赖注入 demo
@@ -10,7 +13,19 @@ package com.index.apache.thinking.in.spring.dependency.injection.setter;
 public class XmlSetterDependencyInjectionDemo {
 
     public static void main(String[] args) {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+
+        String location = "classpath:/META-INF/setter-dependency-injection.xml";
+
+        reader.loadBeanDefinitions(location);
+
+        UserHolder bean = beanFactory.getBean(UserHolder.class);
+
+        System.out.println(bean);
     }
+
+
 }
                                                   
