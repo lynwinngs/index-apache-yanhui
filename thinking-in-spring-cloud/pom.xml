@@ -13,8 +13,11 @@
     <artifactId>thinking-in-spring-cloud</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>spring-cloud-server-application</module>
         <module>spring-cloud-client-application</module>
+        <module>spring-cloud-config-server</module>
+        <module>spring-cloud-eureka-server</module>
+        <module>spring-cloud-client-provider-application</module>
+        <module>spring-cloud-client-consumer-application</module>
     </modules>
 
 
