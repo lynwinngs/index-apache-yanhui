@@ -13,6 +13,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.index.apache</groupId>
+            <artifactId>spring-cloud-client-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- spring -->
         <dependency>
             <groupId>org.springframework</groupId>
