@@ -53,6 +53,14 @@ public class User implements InitializingBean, DisposableBean {
         this.name = name;
     }
 
+    public User() {
+    }
+
+    public User(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public static User createUser() {
         User user = new User();
         user.setId(1L);

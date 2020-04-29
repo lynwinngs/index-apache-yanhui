@@ -3,6 +3,7 @@ package com.index.apache.thinking.in.spring.beans;
 import com.index.apache.thinking.in.spring.beans.entity.User;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.Arrays;
 
@@ -43,7 +44,7 @@ public class LifecycleOfBeanDemo {
     }
 
     @Bean(initMethod = "initMethod", destroyMethod = "destroyMethod")
-//    @Lazy
+    @Lazy
     public User user() {
         User user = new User();
         user.setId(1L);
