@@ -25,7 +25,7 @@ public class InjectionIocService implements IocService {
 
     @Override
     public String toString() {
-        return "AutowiringIocService{" +
+        return "InjectionIocService{" +
                 "type='" + type + '\'' +
                 '}';
     }

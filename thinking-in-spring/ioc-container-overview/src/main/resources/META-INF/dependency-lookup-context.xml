@@ -8,8 +8,8 @@
         <property name="type" value="lookup"/>
     </bean>
 
-    <bean id="injectionIocService" class="com.index.apache.thinking.in.spring.ioc.overview.service.impl.InjectionIocService">
-        <property name="type" value="autowiring"/>
+    <bean id="injectionIocService" class="com.index.apache.thinking.in.spring.ioc.overview.service.impl.InjectionIocService" primary="true">
+        <property name="type" value="injection"/>
     </bean>
 
     <bean id="objectFactory" class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
