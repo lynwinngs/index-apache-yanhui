@@ -5,6 +5,7 @@ import com.index.apache.thinking.in.spring.ioc.overview.service.impl.LookupIocSe
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Lazy;
 
@@ -19,6 +20,9 @@ import java.util.Optional;
  * @Version 1.0
  **/
 public class AnnotationDependencyInjectionResolutionDemo {
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     // ObjectProvider注入：包装 -> Optional注入（包装 -> 普通注入）
     @Autowired
