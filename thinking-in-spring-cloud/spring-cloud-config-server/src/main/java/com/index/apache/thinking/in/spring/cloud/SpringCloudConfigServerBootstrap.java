@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.config.server.EnableConfigServer;
 
 /**
- * @ClassName: SpringCloudServerApplication
- * @Description: spring cloud 服务端引导类
+ * @ClassName: SpringCloudConfigServerBootstrap
+ * @Description: spring cloud 配置中心服务端引导类
  * @Author: Xiao Xuezhi
  * @Date: 2020/4/20 22:56
  * @Version： 1.0
