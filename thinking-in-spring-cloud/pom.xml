@@ -20,6 +20,7 @@
         <module>spring-cloud-client-consumer-application</module>
         <module>spring-cloud-client-api</module>
         <module>spring-cloud-client-hystrix-dashboard</module>
+        <module>spring-cloud-zuul</module>
     </modules>
 
 
