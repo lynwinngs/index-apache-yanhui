@@ -2,7 +2,7 @@ package com.index.apache.thinking.in.spring.cloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * @ClassName: SpringCloudClientProviderBootstrap
@@ -12,7 +12,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * @Version： 1.0
  */
 @SpringBootApplication
-@EnableEurekaClient
+@EnableDiscoveryClient
 public class SpringCloudClientProviderBootstrap {
 
     public static void main(String[] args) {

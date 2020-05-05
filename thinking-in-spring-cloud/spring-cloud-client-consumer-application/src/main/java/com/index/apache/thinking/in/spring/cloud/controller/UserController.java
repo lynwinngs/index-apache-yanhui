@@ -1,6 +1,7 @@
 package com.index.apache.thinking.in.spring.cloud.controller;
 
 import com.index.apache.thinking.in.spring.cloud.entity.User;
+import com.index.apache.thinking.in.spring.cloud.service.UserFeign;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,7 @@ import java.util.Random;
  * @Version 1.0
  **/
 @RestController
-@RequestMapping("/user")
-public class UserController {
+public class UserController implements UserFeign {
 
     /**
      * 使用微服务的服务名做 host 时，必须使用 @LoadBalanced 注解，否则会报错 java.net.UnknownHostException,
@@ -33,6 +33,9 @@ public class UserController {
     @LoadBalanced
     private RestTemplate restTemplate;
 
+    @Autowired
+    private UserFeign userFeign;
+
     @Value("${spring.cloud.client.provider.url}")
     private String serviceUrl;
 
@@ -41,14 +44,22 @@ public class UserController {
 
     private static final Random random = new Random();
 
-    @PostMapping("/add")
-    public boolean add(@RequestParam String name) {
+    @Override
+    public boolean add(@RequestParam("name") String name) {
         return restTemplate.postForObject(serviceUrl + userServiceUrl + "/add?name=" + name, null, Boolean.class);
     }
 
-    @GetMapping("/get")
-    public User get(@RequestParam Long id) {
-        return restTemplate.getForObject(serviceUrl + userServiceUrl + "/get?id=" + id, User.class);
+    @Override
+    @HystrixCommand(fallbackMethod = "getUserFallback",
+            commandProperties = {@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "100")}
+    )
+    public User get(@RequestParam("id") Long id) {
+        return userFeign.get(id);
+    }
+
+    private User getUserFallback(Long id) {
+        System.out.printf("the user of id-[%d] is null.\n", id);
+        return null;
     }
 
     // HystrixProperty 配置可以到 下面网址查找
