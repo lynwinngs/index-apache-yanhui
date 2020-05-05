@@ -1,14 +1,19 @@
 package com.index.apache.thinking.in.spring.dependency.injection.setter;
 
+import com.index.apache.thinking.in.spring.dependency.injection.setter.annotation.MyAutowired;
+import com.index.apache.thinking.in.spring.dependency.injection.setter.annotation.MyInject;
 import com.index.apache.thinking.in.spring.ioc.overview.service.IocService;
 import com.index.apache.thinking.in.spring.ioc.overview.service.impl.LookupIocService;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +47,7 @@ public class AnnotationDependencyInjectionResolutionDemo {
     private LookupIocService lazyLookupIocService;
 
     // 集合注入： 处理集合类型 -> 查找依赖候选 -> 类型转变
-    @Autowired
+    @Inject
     private List<IocService> iocServiceList;
 
     // 核心方法：
@@ -50,8 +55,18 @@ public class AnnotationDependencyInjectionResolutionDemo {
     // 查找依赖候选 org.springframework.beans.factory.support.DefaultListableBeanFactory#findAutowireCandidates
     // 普通注入：
     // 查找依赖候选 -> 条件过滤 -> 根据名称，类型获取容器中的 bean 实例
-    @Autowired
-    private IocService lookupIocService;
+    @MyInject
+    private IocService iocService;
+
+    @MyAutowired
+    private LookupIocService lookupIocService;
+
+    @Bean
+    public static AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor(){
+        AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
+        beanPostProcessor.setAutowiredAnnotationType(MyAutowired.class);
+        return beanPostProcessor;
+    }
 
     public static void main(String[] args) {
         AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();

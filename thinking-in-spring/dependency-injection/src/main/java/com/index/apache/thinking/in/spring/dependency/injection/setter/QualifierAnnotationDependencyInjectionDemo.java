@@ -1,6 +1,7 @@
 package com.index.apache.thinking.in.spring.dependency.injection.setter;
 
 import com.index.apache.thinking.in.spring.beans.entity.User;
+import com.index.apache.thinking.in.spring.dependency.injection.setter.annotation.UserAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

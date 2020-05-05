@@ -1,4 +1,4 @@
-package com.index.apache.thinking.in.spring.dependency.injection.setter;
+package com.index.apache.thinking.in.spring.dependency.injection.setter.annotation;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 
