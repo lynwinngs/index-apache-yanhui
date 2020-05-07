@@ -11,7 +11,7 @@ import com.index.apache.thinking.in.spring.ioc.overview.service.IocService;
  */
 public class LookupIocService implements IocService {
 
-    private String type;
+    protected String type;
 
     public String getType() {
         return type;

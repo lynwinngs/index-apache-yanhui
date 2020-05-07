@@ -11,22 +11,23 @@ import com.index.apache.thinking.in.spring.ioc.overview.service.IocService;
  * @Version： 1.0
  */
 @Auto
-public class InjectionIocService implements IocService {
+public class InjectionIocService extends LookupIocService implements IocService {
 
-    private String type;
+    private String autowiring;
 
-    public String getType() {
-        return type;
+    public String getAutowiring() {
+        return autowiring;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setAutowiring(String autowiring) {
+        this.autowiring = autowiring;
     }
 
     @Override
     public String toString() {
         return "InjectionIocService{" +
-                "type='" + type + '\'' +
+                "autowiring='" + autowiring + '\'' +
+                ", type='" + type + '\'' +
                 '}';
     }
 }

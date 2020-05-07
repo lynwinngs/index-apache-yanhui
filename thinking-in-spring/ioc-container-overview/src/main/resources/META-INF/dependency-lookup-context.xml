@@ -10,6 +10,7 @@
 
     <bean id="injectionIocService" class="com.index.apache.thinking.in.spring.ioc.overview.service.impl.InjectionIocService" primary="true">
         <property name="type" value="injection"/>
+        <property name="autowiring" value="byType"/>
     </bean>
 
     <bean id="objectFactory" class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
