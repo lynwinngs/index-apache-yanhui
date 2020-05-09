@@ -25,8 +25,8 @@ public class RegistryAfterContextRefreshDemo {
         DefaultListableBeanFactory beanFactory = applicationContext.getDefaultListableBeanFactory();
         applicationContext.refresh();
 
-        // 从 ResolvableDependencySourceDemo 示例可知，Resolvable Dependency 可以在 refresh 后注册
-        // 单一 bean 也可以在 refresh 后进行注册
+        // 从 ResolvableDependencySourceDemo 示例可知，Resolvable Dependency 可以在 refresh 后注册，可以依赖注入
+        // 单一 bean 也可以在 refresh 后进行注册，可以进行依赖查找，但是不能进行依赖注入
         // bean definition 在 refresh 后注册的 bean，可以进行依赖查找，但是不能进行依赖注入
         // 依据：
         // application 在 refresh 时调用 finishBeanFactoryInitialization 方法
