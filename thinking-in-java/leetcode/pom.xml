@@ -6,15 +6,11 @@
         <artifactId>index-apache-nuwa</artifactId>
         <groupId>com.index.apache</groupId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../../index-apache-nuwa/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>thinking-in-java</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>concurrent-programming</module>
-        <module>leetcode</module>
-    </modules>
+    <artifactId>leetcode</artifactId>
 
 
 </project>

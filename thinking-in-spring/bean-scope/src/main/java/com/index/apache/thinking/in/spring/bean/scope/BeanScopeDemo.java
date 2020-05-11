@@ -1,4 +1,4 @@
-package com.index.apache.thinking.in.bean.scope;
+package com.index.apache.thinking.in.spring.bean.scope;
 
 import com.index.apache.thinking.in.spring.beans.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
