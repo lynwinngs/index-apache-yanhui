@@ -41,13 +41,14 @@ class Solution {
         newStr += "%";
 
         int newLength = newStr.length() - 1;
-        int maxLength = -1;
-        int id=2;
+        int maxStep = -1;
+        int id = 2;
+        int position = 2;
         int mx = 0;
         int[] p = new int[newLength];
         for (int i = 1; i < newLength; i++) {
             if (i < mx) {
-                p[i] = mx - i;
+                p[i] = Math.min(p[2 * id - i], mx - i);
             } else {
                 p[i] = 1;
             }
@@ -56,17 +57,18 @@ class Solution {
                 p[i]++;
             }
 
-            if(mx <i + p[i]){
+            if (mx < i + p[i]) {
                 mx = i + p[i];
+                id = i;
             }
 
-            if(p[i] - 1>maxLength){
-                maxLength = p[i] - 1;
-                id = i;
+            if (p[i] > maxStep) {
+                maxStep = p[i];
+                position = i;
             }
         }
 
-        newStr = newStr.substring(id-maxLength,id+maxLength);
-        return newStr.replace("#","");
+        newStr = newStr.substring(position - (maxStep - 1), position + maxStep);
+        return newStr.replace("#", "");
     }
 }
