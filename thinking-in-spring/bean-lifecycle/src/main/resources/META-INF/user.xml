@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="user" class="com.index.apache.thinking.in.spring.bean.lifecycle.entity.User">
+        <property name="id" value="2"/>
+        <property name="name" value="xxz"/>
+    </bean>
+
+    <bean id="superUser" class="com.index.apache.thinking.in.spring.bean.lifecycle.entity.SuperUser"
+          parent="user" primary="true">
+        <property name="city" value="tianjin"/>
+    </bean>
+</beans>
