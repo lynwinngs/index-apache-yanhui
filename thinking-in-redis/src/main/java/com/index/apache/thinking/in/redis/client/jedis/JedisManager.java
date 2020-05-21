@@ -1,4 +1,4 @@
-package com.index.apache.thinking.in.redis;
+package com.index.apache.thinking.in.redis.client.jedis;
 
 import redis.clients.jedis.Jedis;
 
