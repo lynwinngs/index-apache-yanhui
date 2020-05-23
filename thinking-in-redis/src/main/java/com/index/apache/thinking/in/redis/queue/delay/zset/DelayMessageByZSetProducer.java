@@ -11,6 +11,8 @@ import static com.index.apache.thinking.in.redis.queue.delay.Constants.DELAY_MES
 /**
  * 延迟消息队列 生产者
  *
+ * 使用 sorted-set 实现延迟消息队列，以到期时间为 score 进行排序
+ *
  * @Author: Xiao Xuezhi
  * @Date: 2020/5/21 22:43
  * @Version： 1.0

@@ -1,8 +1,9 @@
 package com.index.apache.thinking.in.redis;
 
-import com.index.apache.thinking.in.redis.queue.delay.listener.DelayMessageByListenerApplication;
-import com.index.apache.thinking.in.redis.queue.delay.zset.DelayMessageByZSetApplication;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 程序启动入口
@@ -11,9 +12,12 @@ import org.springframework.boot.SpringApplication;
  * @Date: 2020/5/21 22:46
  * @Version： 1.0
  */
+@SpringBootApplication
+@ComponentScan(basePackages = "com.index.apache.thinking.in.redis.pipeline")
+@EnableScheduling
 public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(DelayMessageByListenerApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 }
