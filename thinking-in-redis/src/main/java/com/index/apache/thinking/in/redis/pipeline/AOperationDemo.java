@@ -10,43 +10,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 批量方式操作
+ * 开线程池
  *
- *
+ * 避免因开线程池影响批量操作的判断
  *
  * @Author: Xiao Xuezhi
  * @Date: 2020/5/23 22:43
  * @Version： 1.0
  */
 @Component
-public class BatchOperationDemo {
+public class AOperationDemo {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
     @PostConstruct
     public void init() {
-        System.gc();
-
-        try {
-            Thread.sleep(2000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         ValueOperations<String, String> operations = redisTemplate.opsForValue();
 
         Map<String, String> map = new HashMap<>(256);
 
         long start = System.currentTimeMillis();
 
-        for (int i = 2000; i < 3000; i++) {
+        for (int i = 10000000; i < 10001000; i++) {
             String key = "key" + i;
             String value = "value" + i;
             map.put(key, value);
         }
         operations.multiSet(map);
 
-        System.out.printf("批量方式执行时间：%d ms\n", System.currentTimeMillis() - start);
+        System.out.printf("开线程池执行时间：%d ms\n", System.currentTimeMillis() - start);
     }
 }
