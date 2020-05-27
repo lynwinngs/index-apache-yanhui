@@ -22,20 +22,22 @@ public class JedisPipeline {
 
         long start = System.currentTimeMillis();
 
-        pipelined.multi();
+//        pipelined.multi();
+
         for (int i = 0; i < 1000; i++) {
             String key = "key" + i;
             String value = "value" + i;
             pipelined.set(key, value);
             pipelined.expire(key, 60);
         }
-        pipelined.exec();
+//        pipelined.exec();
+        pipelined.sync();
 
-        try {
-            pipelined.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            pipelined.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         System.out.printf("pipeline 方式执行时间：%d ms\n", System.currentTimeMillis() - start);
     }
 }
