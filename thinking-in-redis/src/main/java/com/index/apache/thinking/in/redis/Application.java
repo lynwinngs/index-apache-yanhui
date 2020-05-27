@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @Version： 1.0
  */
 @SpringBootApplication
-@ComponentScan(basePackages = "com.index.apache.thinking.in.redis.structure")
+@ComponentScan(basePackages = "com.index.apache.thinking.in.redis.transaction")
 @EnableScheduling
 public class Application {
 

@@ -7,13 +7,13 @@ import redis.clients.jedis.Pipeline;
 import java.io.IOException;
 
 /**
- * 使用 jedis 客户端操作 pipeline
+ * 使用 jedis 客户端操作 pipeline 示例
  *
  * @Author xiaoxuezhi
  * @DATE 2020/5/27 9:06
  * @Version 1.0
  **/
-public class JedisPipeline {
+public class JedisPipelineDemo {
 
     public static void main(String[] args) {
         Jedis jedis = JedisManager.getJedis();
@@ -22,6 +22,7 @@ public class JedisPipeline {
 
         long start = System.currentTimeMillis();
 
+        // 也是支持事务操作的
 //        pipelined.multi();
 
         for (int i = 0; i < 1000; i++) {
@@ -33,11 +34,11 @@ public class JedisPipeline {
 //        pipelined.exec();
         pipelined.sync();
 
-//        try {
-//            pipelined.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            pipelined.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.printf("pipeline 方式执行时间：%d ms\n", System.currentTimeMillis() - start);
     }
 }
