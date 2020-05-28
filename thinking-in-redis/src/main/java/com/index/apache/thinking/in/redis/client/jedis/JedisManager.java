@@ -15,9 +15,8 @@ public class JedisManager {
 
     public static Jedis getJedis(){
         if(jedis == null){
-            jedis = new Jedis("192.168.186.145",6379);
+            jedis = new Jedis("192.168.186.146",6379);
         }
-
         return jedis;
     }
 }
