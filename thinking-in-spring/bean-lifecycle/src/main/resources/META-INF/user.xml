@@ -13,4 +13,9 @@
           parent="user" primary="true">
         <property name="city" value="tianjin"/>
     </bean>
+
+    <bean id="userHolder" class="com.index.apache.thinking.in.spring.bean.lifecycle.entity.UserHolder"
+          autowire="constructor">
+
+    </bean>
 </beans>

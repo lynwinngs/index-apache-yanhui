@@ -2,10 +2,11 @@ package com.index.apache.thinking.in.spring.bean.lifecycle.parsing;
 
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
+import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 
 /**
  * 注解方式定义的 bean definition 的解析
- *
+ * <p>
  * 实际上，该示例演示的是底层如何通过 API 进行注解方式的注册，被注册的类实际上是不需要注解的。
  * 注解的作用在于，使容器能够扫描到需要注册的类，然后对其进行注册
  *
@@ -24,10 +25,16 @@ public class AnnotationBeanDefinitionParsingDemo {
         // 之前最常使用的 AnnotationConfigApplicationContext 的 register 方法
         // 实际上，内部还是组合了 AnnotatedBeanDefinitionReader
         // 本质上还是使用 AnnotatedBeanDefinitionReader 的 register 方法
+        // 这种方法无法注册 @Bean 的 bean
+        // 原因 AnnotatedBeanDefinitionReader#register 方法是注册 Configuration Class
+        // @Bean 的注册是通过解析 Configuration Class 内部处理的
         beanDefinitionReader.register(AnnotationBeanDefinitionParsingDemo.class);
 
         AnnotationBeanDefinitionParsingDemo demo = beanFactory.getBean(AnnotationBeanDefinitionParsingDemo.class);
 
         System.out.println(demo);
+
+        System.out.println(beanFactory.getBean(ConfigurationClassPostProcessor.class));
+
     }
 }
