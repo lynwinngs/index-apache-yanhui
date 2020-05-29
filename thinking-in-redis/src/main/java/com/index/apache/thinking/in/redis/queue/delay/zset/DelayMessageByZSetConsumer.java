@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 
@@ -20,6 +21,25 @@ import static com.index.apache.thinking.in.redis.queue.delay.Constants.DELAY_MES
  */
 @Component
 public class DelayMessageByZSetConsumer {
+
+    public static void main(String[] args) throws InterruptedException {
+        Jedis jedis = new Jedis("127.0.0.1", 6379);
+
+        while (true) {
+            long now = System.currentTimeMillis();
+
+            Set<String> strings = jedis.zrangeByScore(DELAY_MESSAGE_BY_Z_SET_KEY, now, now + 1000L);
+
+            if (CollectionUtils.isEmpty(strings)) {
+                System.out.printf("时间：%d，未查询到过期订单\n", now);
+            } else {
+                System.out.printf("时间：%d，查询到过期订单：%s.\n", now, strings);
+                jedis.zremrangeByScore(DELAY_MESSAGE_BY_Z_SET_KEY, now, now + 1);
+            }
+
+            Thread.sleep(1000L);
+        }
+    }
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
