@@ -22,6 +22,12 @@ public class JedisDemo {
             "then return 0\n" +
             "else return 1\n" +
             "end";
+    private static String evalsha;
+    static {
+        Jedis jedis = JedisManager.getJedis();
+        evalsha = jedis.scriptLoad(lua);
+        System.out.println(evalsha);
+    }
 
     public static void main(String[] args) {
         Jedis jedis = JedisManager.getJedis();
@@ -44,7 +50,6 @@ public class JedisDemo {
         params.add("60");
         params.add("10");
         Object result = jedis.eval(lua, keys, params);
-
         System.out.println(result);
     }
 
@@ -54,11 +59,8 @@ public class JedisDemo {
         List<String> params = new ArrayList<>();
         params.add("60");
         params.add("10");
-        String evalsha = jedis.scriptLoad(lua);
-
+        // scriptLoad 使用这种方式不需要每次加载脚本
         Object result = jedis.evalsha(evalsha, keys, params);
-
         System.out.println(result);
-
     }
 }
