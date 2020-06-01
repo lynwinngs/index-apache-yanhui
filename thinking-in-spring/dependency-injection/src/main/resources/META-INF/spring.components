@@ -1,1 +1,2 @@
-com.index.apache.thinking.in.spring.dependency.injection.setter.AnnotationConstructorDependencyInjectionDemo
+com.index.apache.thinking.in.spring.dependency.injection.setter.AnnotationConstructorDependencyInjectionDemo=\
+org.springframework.stereotype.Component

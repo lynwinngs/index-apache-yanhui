@@ -7,11 +7,11 @@ import com.index.apache.thinking.in.spring.ioc.overview.service.impl.LookupIocSe
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,6 +24,9 @@ import java.util.Optional;
  * @DATE 2020/4/26 11:48
  * @Version 1.0
  **/
+@Component
+//@Conditional(FalseConditional.class)
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AnnotationDependencyInjectionResolutionDemo {
 
     @Autowired
@@ -62,7 +65,7 @@ public class AnnotationDependencyInjectionResolutionDemo {
     private LookupIocService lookupIocService;
 
     @Bean
-    public static AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor(){
+    public static AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor() {
         AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
         beanPostProcessor.setAutowiredAnnotationType(MyAutowired.class);
         return beanPostProcessor;
@@ -75,7 +78,7 @@ public class AnnotationDependencyInjectionResolutionDemo {
 
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(applicationContext);
 
-        String location = "classpath:/META-INF/dependency-lookup-context.xml";
+        String location = "classpath:/META-INF/constructor-dependency-injection.xml";
 
         reader.loadBeanDefinitions(location);
 
