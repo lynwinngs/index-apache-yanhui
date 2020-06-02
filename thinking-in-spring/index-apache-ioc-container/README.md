@@ -6,22 +6,7 @@
 
 - new
     + AbstractApplicationContext 类加载时，通过 static 块加载类 ContextClosedEvent，目的是让这个类尽快加载
-    + new AnnotatedBeanDefinitionReader：注解的 BeanDefinition 读取器
-        + getOrCreateEnvironment(BeanDefinitionRegistry)
-        + new ConditionEvaluator：条件评估器（用于 @Conditional 的 Condition.matches）
-            + deduceBeanFactory （beanFactory：自身，applicationContext：组合的 beanFactory）
-            + deduceEnvironment
-            + deduceResourceLoader (容器自身)
-            + deduceClassLoader
-        + AnnotationConfigUtils.registerAnnotationConfigProcessors 注册注解配置处理器
-            + 注册内建 BeanDefinition
-                + ConfigurationClassPostProcessor：处理 @Configuration 
-                + AutowiredAnnotationBeanPostProcessor：处理 @Autowired @Value @Inject 等
-                + CommonAnnotationBeanPostProcessor：处理 @Resource @PostConstructor @PreDestroy 等
-                + PersistenceAnnotationBeanPostProcessor：处理 jpa
-                + EventListenerMethodProcessor：处理 @EventListener
-                + DefaultEventListenerFactory
-            + 调用 DefaultListableBeanFactory.registerBeanDefinition 注册这些内建 BeanDefinition
+    + new AnnotatedBeanDefinitionReader：注解的 BeanDefinition 读取器（详细见 《目录 AnnotatedBeanDefinitionReader》）
     + new ClassPathBeanDefinitionScanner：ClassPath 内的 BeanDefinition 扫描器
         + registerDefaultFilters
             + 添加 Component 注解的过滤
@@ -39,13 +24,31 @@
         + setEnvironment
         + setResourceLoader
             + CandidateComponentsIndexLoader.loadIndex
-                + 加载 META-INF/spring.components 中的组件到 CandidateComponentsIndex componentsIndex
+                + 加载 META-INF/spring.components 中的组件到 CandidateComponentsIndex componentsIndex **？？？**
 - register
-    + AnnotatedBeanDefinitionReader.register(Class ...) 注册组件
+    + AnnotatedBeanDefinitionReader.register(Class ...) 注册组件（详细见 《目录 AnnotatedBeanDefinitionReader》）
         
                 
                 
 ## AnnotatedBeanDefinitionReader：注解的 BeanDefinition 读取器
+
+- new 构造器参数 BeanDefinitionRegistry
+    + new AnnotatedBeanDefinitionReader：注解的 BeanDefinition 读取器
+        + getOrCreateEnvironment(BeanDefinitionRegistry)
+        + new ConditionEvaluator：条件评估器（用于 @Conditional 的 Condition.matches）
+            + deduceBeanFactory （beanFactory：自身，applicationContext：组合的 beanFactory）
+            + deduceEnvironment
+            + deduceResourceLoader (容器自身)
+            + deduceClassLoader
+        + AnnotationConfigUtils.registerAnnotationConfigProcessors 注册注解配置处理器
+            + 注册内建 BeanDefinition
+                + ConfigurationClassPostProcessor：处理 @Configuration 
+                + AutowiredAnnotationBeanPostProcessor：处理 @Autowired @Value @Inject 等
+                + CommonAnnotationBeanPostProcessor：处理 @Resource @PostConstructor @PreDestroy 等
+                + PersistenceAnnotationBeanPostProcessor：处理 jpa
+                + EventListenerMethodProcessor：处理 @EventListener
+                + DefaultEventListenerFactory
+            + 调用 DefaultListableBeanFactory.registerBeanDefinition 注册这些内建 BeanDefinition
 
 - register(Class ...) 注册组件
     + registerBean(Class beanClass) 注册 bean
@@ -86,10 +89,66 @@
 
 extends AbstractBeanDefinitionReader
 
-- AbstractBeanDefinitionReader.loadBeanDefinitions
+- new
+    + 构造器参数 BeanDefinitionRegistry，传递上下文的 ResourceLoader、Environment
+    
+- AbstractBeanDefinitionReader.loadBeanDefinitions ①
     + 判断当前 ResourceLoader 是 ResourcePatternResolver 么（ApplicationContext 实现了 ResourcePatternResolver）
-        + 
-
+        + 是，则取到 Resource[]
+        + 否，则取到 Resource
+    + XmlBeanDefinitionReader.loadBeanDefinitions(EncodedResource) 包装 Resource 到 EncodeResource, 开始读取配置
+    + ThreadLocal 保存当前线程 EncodedResource
+    + doLoadDocument 把资源加载成文档
+    + registerBeanDefinitions 注册 BeanDefinition
+        + 创建 BeanDefinitionDocumentReader： BeanDefinition 文档读取器, DefaultBeanDefinitionDocumentReader
+        + BeanDefinitionDocumentReader.registerBeanDefinitions 读取器注册 BeanDefinition
+            + 创建 XmlReaderContext：xml 读取上下文
+                + 创建 NamespaceHandlerResolver
+                    + namespaceHandlerResolver == null 则创建 DefaultNamespaceHandlerResolver
+                        + 关联 META-INF/spring.handlers **？？？**
+            + DefaultBeanDefinitionDocumentReader.doRegisterBeanDefinitions
+                + 创建 BeanDefinitionParserDelegate 代理
+                + 判断命名空间的 profile，与当前不符则 return
+                + preProcessXml：xml 前处理，默认无实现，可继承 DefaultBeanDefinitionDocumentReader 进行实现
+                + parseBeanDefinitions：解析 BeanDefinition
+                    + 遍历节点元素（按照文件中元素的声明顺序）
+                        + parseDefaultElement：解析元素
+                            + 处理 import
+                                + 处理 spring expression 获取真实路径
+                                + 判断绝对路径 or 相对路径
+                                    + 相对路径要转换路径资源
+                                + goto ① 解析 import 的 xml 文件
+                            + 处理 alias
+                            + 处理 bean
+                                + processBeanDefinition 处理 BeanDefinition
+                                    + BeanDefinitionParserDelegate.parseBeanDefinitionElement：解析 BeanDefinition 元素，此时没有 beanName
+                                        + 获取 id 赋值 beanName, 处理 alias, beanName 查重
+                                        + parseBeanDefinitionElement：解析 BeanDefinition 元素，此时有 beanName
+                                            + 解析 class, parent
+                                            + createBeanDefinition：通过 class 和 parent，创建 BeanDefinition
+                                                + new GenericBeanDefinition
+                                                + 设置 parent class
+                                                + 如果 classLoader 不为空，则设置 beanClass，否则设置 beanClassName
+                                            + parseBeanDefinitionAttributes：解析 BeanDefinition 的属性
+                                                + scope, abstract, lazy-init, autowire, depend-on, autowire-candidate, 
+                                                primary, init-method, destroy-method, factory-method, factory-bean
+                                            + 根据 child node 解析 description
+                                            + parseMetaElements：解析 meta 元素
+                                            + parseLookupOverrideSubElements：解析 lookup-method 方法查找依赖
+                                            + parseReplacedMethodSubElements：解析 replaced-method **？？？**
+                                            + parseConstructorArgElements：解析 constructor-arg 构造器参数
+                                            + parsePropertyElements：解析 property 参数
+                                            + parseQualifierElements：解析 qualifier 限定
+                                            + 设置 Resource、Source
+                                        + 如果 beanName 为空，生成 beanName
+                                        + alias to array
+                                        + return BeanDefinitionHolder
+                                     + BeanDefinitionParserDelegate.decorateBeanDefinitionIfRequired：装饰存在的属性和子节点属性 **？？？**
+                                     + BeanDefinitionReaderUtils.registerBeanDefinition 注册 BeanDefinition
+                            + 处理 beans
+                + postProcessXml：xml 后处理，默认无实现，可继承 DefaultBeanDefinitionDocumentReader 进行实现
+            
+            
 ## 注册 BeanDefinition 过程
 
 DefaultListableBeanFactory.registerBeanDefinition 方法
