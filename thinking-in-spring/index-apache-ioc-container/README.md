@@ -10,7 +10,7 @@
 > _link ①_: 指向条目内锚点
 > 自定义扩展: 可以对框架进行的扩展点  
 
-## AnnotationConfigApplicationContext
+## AnnotationConfigApplicationContext: 注解配置的应用上下文(核心容器)
 
 - new
     + `AbstractApplicationContext` 类加载时, 通过 static 块加载类 `ContextClosedEvent`, 目的是让这个类尽快加载
@@ -43,9 +43,9 @@
         + 初始化一些状态: startupDate=now, closed=false, active=true
         + `initPropertySources`: 提供给子类的自定义扩展点
             + spring 提供了 3 个关于 web 容器的实现, 非 web 项目无官方实现
-            + `AbstractRefreshableWebApplicationContext`
-            + `GenericWebApplicationContext`
-            + `StaticWebApplicationContext`
+                + `AbstractRefreshableWebApplicationContext`
+                + `GenericWebApplicationContext`
+                + `StaticWebApplicationContext`
         + `validateRequiredProperties` 校验必须参数
         + `earlyApplicationListeners` 就绪. 早期的 `ApplicationListeners` 何时会提前注入进来 **???**
         + `earlyApplicationEvents` 就绪
@@ -60,23 +60,41 @@
             + `new ApplicationContextAwareProcessor` 具有 ApplicationContext 意识的处理器,添加到 `BeanPostProcessor` 列表
                 + `new EmbeddedValueResolver` 嵌入式 Value 处理器
                     + 设置 应用上下文 和 spring el expression 处理器(_link ①_)
-        + 忽略注入接口
+        + 忽略注入接口 `ignoreDependencyInterface`
             + `EnvironmentAware`, `EmbeddedValueResolverAware`, `ResourceLoaderAware`, 
             `ApplicationEventPublisherAware`, `MessageSourceAware`, `ApplicationContextAware`
         + `ConfigurableListableBeanFactory.registerResolvableDependency` 注册 ResolvableDependency(无生命周期管理; 无法实现延迟初始化 bean; 无法通过依赖查找 )
             + (_goto `DefaultListableBeanFactory.resolvableDependencies`_)
+                + `BeanFactory` -> beanFactory
+                + `ResourceLoader` -> applicationContext
+                + `ApplicationEventPublisher` -> applicationContext
+                + `ApplicationContext` -> applicationContext 
         + `addBeanPostProcessor`
             + `new ApplicationListenerDetector` ApplicationContext 检测器, 添加到 `BeanPostProcessor` 列表
-        + `loadTimeWeaver`(类加载期织入) bean 是否存在
+        + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
             + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
             + `new ContextTypeMatchClassLoader` 用于织入的类加载器
         + `SingletonBeanRegistry.registerSingleton` 注册 Singleton(无生命周期管理; 无法实现延迟初始化 bean)
             + (_goto `DefaultListableBeanFactory.registerSingleton`_)
-
-
+                + `ConfigurableEnvironment environment`
+                + `Map<String, Object> systemProperties`
+                + `Map<String, Object> systemEnvironment`
     + try 块
-        + `postProcessBeanFactory`
-        + `invokeBeanFactoryPostProcessors`
+        + `postProcessBeanFactory` beanFactory 后处理. 默认为空, 可对子类进行自定义扩展
+            + spring 对 一些 web context 提供了扩展实现
+                + `AbstractRefreshableWebApplicationContext`
+                + `GenericWebApplicationContext`
+                + `AnnotationConfigServletWebApplicationContext`
+                + `AnnotationConfigServletWebServerApplicationContext`
+                + `AnnotationConfigReactiveWebServerApplicationContext`
+                + `ServletWebServerApplicationContext`
+                + `StaticWebApplicationContext` 
+                + `ResourceAdapterApplicationContext`
+        + `invokeBeanFactoryPostProcessors` 调用 beanFactory 后处理
+            + (_goto `PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors`_)
+            + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
+                + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
+                + `new ContextTypeMatchClassLoader` 用于织入的类加载器
         + `registerBeanPostProcessors`
         + `initMessageSource`
         + `initApplicationEventMulticaster`
@@ -102,15 +120,15 @@
             + `deduceResourceLoader` (容器自身)
             + `deduceClassLoader`
         + `AnnotationConfigUtils.registerAnnotationConfigProcessors` 注册注解配置处理器
-            + 注册内建 `BeanDefinition`
+            + 设置依赖比较器 `beanFactory.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE)`
+            + 设置自动写入候选解析器 `beanFactory.setAutowireCandidateResolver(new ContextAnnotationAutowireCandidateResolver())`
+            + 注册内建 `BeanDefinition`(_goto `DefaultListableBeanFactory.registerBeanDefinition`_)
                 + `ConfigurationClassPostProcessor`: 处理 `@Configuration` 
                 + `AutowiredAnnotationBeanPostProcessor`: 处理 `@Autowired` `@Value` `@Inject` 等
                 + `CommonAnnotationBeanPostProcessor`: 处理 `@Resource` `@PostConstructor` `@PreDestroy` 等
                 + `PersistenceAnnotationBeanPostProcessor`: 处理 jpa
                 + `EventListenerMethodProcessor`: 处理 `@EventListener`
                 + `DefaultEventListenerFactory`
-            + 调用 `DefaultListableBeanFactory.registerBeanDefinition` 注册这些内建 `BeanDefinition`
-
 - `register(Class ...)` 注册组件
     + `registerBean(Class beanClass)` 注册 bean
         + `doRegisterBean` 注册 bean
@@ -218,7 +236,7 @@
         + 如果`Set<EncodedResource>`空了, 则清空当前线程 `ThreadLocal` 数据, 避免内存泄漏
             
             
-## DefaultListableBeanFactory 
+## DefaultListableBeanFactory: BeanFactory 的默认实现
 
 - `registerBeanDefinition`: 注册 `BeanDefinition` 过程
     + `validate`() 校验
@@ -240,11 +258,10 @@
 > - frozenBeanDefinitionNames 冻结 beanDefinition 注册的标志  
 
 
-- `resolvableDependencies` put Class -> object
-    + `BeanFactory` -> beanFactory
-    + `ResourceLoader` -> applicationContext
-    + `ApplicationEventPublisher` -> applicationContext
-    + `ApplicationContext` -> applicationContext 
+- `resolvableDependencies` 
+    + 校验
+    + put Class -> object
+
     
 - `registerSingleton`
     + super `DefaultSingletonBeanRegistry.registerSingleton`
@@ -260,13 +277,13 @@
     + clearByTypeCache 清除所有假定的 byType mappings
 
 
-## BeanDefinitionReaderUtils 
+## BeanDefinitionReaderUtils: BeanDefinition读取工具
 
 - `registerBeanDefinition` 注册 bean
     + 使用 `DefaultListableBeanFactory.registerBeanDefinition` 注册(_goto `DefaultListableBeanFactory.registerBeanDefinition`_)
     + 注册别名(_goto `SimpleAliasRegistry.registerAlias`_)
     
-## SimpleAliasRegistry
+## SimpleAliasRegistry: 简单别名注册表
 
 - Field `aliasMap` 用来保存 别名 与 bean 名称的对应
 
@@ -281,9 +298,14 @@
             + `checkForAliasCircle` 检查别名循环
             + `aliasMap` 保存 alias - beanName
 
-## ReaderEventListener
+## ReaderEventListener: 读取事件监听器
 
     默认为空, 可自定义扩展
 - 方法:   
     + 在 `new XmlReaderContext` 时, 传入 `ReaderEventListener` 的实现
     + 使用 `setEventListener` 方法设置 
+    
+    
+## PostProcessorRegistrationDelegate: 后处理注册代理
+
+- `invokeBeanFactoryPostProcessors`
