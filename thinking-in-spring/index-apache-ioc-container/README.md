@@ -235,7 +235,9 @@
         + 移除当前 `EncodedResource`
         + 如果`Set<EncodedResource>`空了, 则清空当前线程 `ThreadLocal` 数据, 避免内存泄漏
             
-            
+## AbstractBeanFactory
+
+   
 ## DefaultListableBeanFactory: BeanFactory 的默认实现
 
 - `registerBeanDefinition`: 注册 `BeanDefinition` 过程
@@ -275,6 +277,8 @@
     + updateManualSingletonNames 更新手动的 Singleton
         + manualSingletonNames add beanName
     + clearByTypeCache 清除所有假定的 byType mappings
+    
+- `getBeanNamesForType`
 
 
 ## BeanDefinitionReaderUtils: BeanDefinition读取工具
@@ -309,3 +313,18 @@
 ## PostProcessorRegistrationDelegate: 后处理注册代理
 
 - `invokeBeanFactoryPostProcessors`
+    + beanFactory is a `BeanDefinitionRegistry`
+        + 声明 `List<BeanDefinitionRegistryPostProcessor> registryProcessors` 保存 `BeanDefinitionRegistryPostProcessor` 的实现实例
+        + 声明 `List<BeanFactoryPostProcessor> regularPostProcessors` 保存 `BeanFactoryPostProcessor` 的实现
+        + 循环入参的 `BeanFactoryPostProcessor` 列表
+            + 元素实例 is a `BeanDefinitionRegistryPostProcessor`
+                + 调用每个元素的 `postProcessBeanDefinitionRegistry` 方法, BeanDefinition 注册后处理
+                + add to registryProcessors
+            + otherwise
+                + add to regularPostProcessors
+        + 声明 `List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors` 保存当前注册的  `BeanDefinitionRegistryPostProcessor` 的实现实例
+        + beanFactory `getBeanNamesForType` 根据 `BeanDefinitionRegistryPostProcessor` 类型获取 beanName
+            + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_)
+    + otherwise
+        + 循环调用各个 `BeanFactoryPostProcessor` 的 `postProcessBeanFactory` 实现
+            
