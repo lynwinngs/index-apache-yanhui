@@ -37,76 +37,9 @@
                 + 加载 META-INF/spring.components 中的组件到 `CandidateComponentsIndex componentsIndex` **???**
 - `register`
     + `AnnotatedBeanDefinitionReader.register(Class ...)` 注册组件(_goto `AnnotatedBeanDefinitionReader.register`_)
-    
-- `refresh`
-    + `prepareRefresh`
-        + 初始化一些状态: startupDate=now, closed=false, active=true
-        + `initPropertySources`: 提供给子类的自定义扩展点
-            + spring 提供了 3 个关于 web 容器的实现, 非 web 项目无官方实现
-                + `AbstractRefreshableWebApplicationContext`
-                + `GenericWebApplicationContext`
-                + `StaticWebApplicationContext`
-        + `validateRequiredProperties` 校验必须参数
-        + `earlyApplicationListeners` 就绪. 早期的 `ApplicationListeners` 何时会提前注入进来 **???**
-        + `earlyApplicationEvents` 就绪
-    + `obtainFreshBeanFactory` 获取 `BeanFactory`
-        + `refreshBeanFactory` 设置 id
-        + `getBeanFactory` 返回实例化是创建的 DefaultListableBeanFactory
-    + `prepareBeanFactory`
-        + `setBeanClassLoader` 设置 classLoader
-        + `setBeanExpressionResolver` 设置 spring el expression 处理器 `new StandardBeanExpressionResolver` ①
-        + `addPropertyEditorRegistrar` 添加 `new ResourceEditorRegistrar` 作用是什么 **???**
-        + `addBeanPostProcessor`
-            + `new ApplicationContextAwareProcessor` 具有 ApplicationContext 意识的处理器,添加到 `BeanPostProcessor` 列表
-                + `new EmbeddedValueResolver` 嵌入式 Value 处理器
-                    + 设置 应用上下文 和 spring el expression 处理器(_link ①_)
-        + 忽略注入接口 `ignoreDependencyInterface`
-            + `EnvironmentAware`, `EmbeddedValueResolverAware`, `ResourceLoaderAware`, 
-            `ApplicationEventPublisherAware`, `MessageSourceAware`, `ApplicationContextAware`
-        + `ConfigurableListableBeanFactory.registerResolvableDependency` 注册 ResolvableDependency(无生命周期管理; 无法实现延迟初始化 bean; 无法通过依赖查找 )
-            + (_goto `DefaultListableBeanFactory.resolvableDependencies`_)
-                + `BeanFactory` -> beanFactory
-                + `ResourceLoader` -> applicationContext
-                + `ApplicationEventPublisher` -> applicationContext
-                + `ApplicationContext` -> applicationContext 
-        + `addBeanPostProcessor`
-            + `new ApplicationListenerDetector` ApplicationContext 检测器, 添加到 `BeanPostProcessor` 列表
-        + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
-            + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
-            + `new ContextTypeMatchClassLoader` 用于织入的类加载器
-        + `SingletonBeanRegistry.registerSingleton` 注册 Singleton(无生命周期管理; 无法实现延迟初始化 bean)
-            + (_goto `DefaultListableBeanFactory.registerSingleton`_)
-                + `ConfigurableEnvironment environment`
-                + `Map<String, Object> systemProperties`
-                + `Map<String, Object> systemEnvironment`
-    + try 块
-        + `postProcessBeanFactory` beanFactory 后处理. 默认为空, 可对子类进行自定义扩展
-            + spring 对 一些 web context 提供了扩展实现
-                + `AbstractRefreshableWebApplicationContext`
-                + `GenericWebApplicationContext`
-                + `AnnotationConfigServletWebApplicationContext`
-                + `AnnotationConfigServletWebServerApplicationContext`
-                + `AnnotationConfigReactiveWebServerApplicationContext`
-                + `ServletWebServerApplicationContext`
-                + `StaticWebApplicationContext` 
-                + `ResourceAdapterApplicationContext`
-        + `invokeBeanFactoryPostProcessors` 调用 beanFactory 后处理
-            + (_goto `PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors`_)
-            + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
-                + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
-                + `new ContextTypeMatchClassLoader` 用于织入的类加载器
-        + `registerBeanPostProcessors`
-        + `initMessageSource`
-        + `initApplicationEventMulticaster`
-        + `onRefresh`
-        + `registerListeners`
-        + `finishBeanFactoryInitialization`
-        + `finishRefresh`
-    + catch 块
-        + `destroyBeans`
-        + `cancelRefresh`
-    + finally 块
-        + `resetCommonCaches`
+
+- `refresh` (_goto `AbstractApplicationContext.refresh`_)
+
                 
                 
 ## AnnotatedBeanDefinitionReader: 注解的 BeanDefinition 读取器
@@ -235,8 +168,88 @@
         + 移除当前 `EncodedResource`
         + 如果`Set<EncodedResource>`空了, 则清空当前线程 `ThreadLocal` 数据, 避免内存泄漏
             
+## AbstractApplicationContext
+
+- `refresh`
+    + `prepareRefresh`
+        + 初始化一些状态: startupDate=now, closed=false, active=true
+        + `initPropertySources`: 提供给子类的自定义扩展点
+            + spring 提供了 3 个关于 web 容器的实现, 非 web 项目无官方实现
+                + `AbstractRefreshableWebApplicationContext`
+                + `GenericWebApplicationContext`
+                + `StaticWebApplicationContext`
+        + `validateRequiredProperties` 校验必须参数
+        + `earlyApplicationListeners` 就绪. 早期的 `ApplicationListeners` 何时会提前注入进来 **???**
+        + `earlyApplicationEvents` 就绪
+    + `obtainFreshBeanFactory` 获取 `BeanFactory`
+        + `refreshBeanFactory` 设置 id
+        + `getBeanFactory` 返回实例化是创建的 DefaultListableBeanFactory
+    + `prepareBeanFactory`
+        + `setBeanClassLoader` 设置 classLoader
+        + `setBeanExpressionResolver` 设置 spring el expression 处理器 `new StandardBeanExpressionResolver` ①
+        + `addPropertyEditorRegistrar` 添加 `new ResourceEditorRegistrar` 作用是什么 **???**
+        + `addBeanPostProcessor`
+            + `new ApplicationContextAwareProcessor` 具有 ApplicationContext 意识的处理器,添加到 `BeanPostProcessor` 列表
+                + `new EmbeddedValueResolver` 嵌入式 Value 处理器
+                    + 设置 应用上下文 和 spring el expression 处理器(_link ①_)
+        + 忽略注入接口 `ignoreDependencyInterface`
+            + `EnvironmentAware`, `EmbeddedValueResolverAware`, `ResourceLoaderAware`, 
+            `ApplicationEventPublisherAware`, `MessageSourceAware`, `ApplicationContextAware`
+        + `ConfigurableListableBeanFactory.registerResolvableDependency` 注册 ResolvableDependency(无生命周期管理; 无法实现延迟初始化 bean; 无法通过依赖查找 )
+            + (_goto `DefaultListableBeanFactory.resolvableDependencies`_)
+                + `BeanFactory` -> beanFactory
+                + `ResourceLoader` -> applicationContext
+                + `ApplicationEventPublisher` -> applicationContext
+                + `ApplicationContext` -> applicationContext 
+        + `addBeanPostProcessor`
+            + `new ApplicationListenerDetector` ApplicationContext 检测器, 添加到 `BeanPostProcessor` 列表
+        + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
+            + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
+            + `new ContextTypeMatchClassLoader` 用于织入的类加载器
+        + `SingletonBeanRegistry.registerSingleton` 注册 Singleton(无生命周期管理; 无法实现延迟初始化 bean)
+            + (_goto `DefaultListableBeanFactory.registerSingleton`_)
+                + `ConfigurableEnvironment environment`
+                + `Map<String, Object> systemProperties`
+                + `Map<String, Object> systemEnvironment`
+    + try 块
+        + `postProcessBeanFactory` beanFactory 后处理. 默认为空, 可对子类进行自定义扩展
+            + spring 对 一些 web context 提供了扩展实现
+                + `AbstractRefreshableWebApplicationContext`
+                + `GenericWebApplicationContext`
+                + `AnnotationConfigServletWebApplicationContext`
+                + `AnnotationConfigServletWebServerApplicationContext`
+                + `AnnotationConfigReactiveWebServerApplicationContext`
+                + `ServletWebServerApplicationContext`
+                + `StaticWebApplicationContext` 
+                + `ResourceAdapterApplicationContext`
+        + `invokeBeanFactoryPostProcessors` 调用 beanFactory 后处理
+            + (_goto `PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors`_)
+            + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
+                + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
+                + `new ContextTypeMatchClassLoader` 用于织入的类加载器
+        + `registerBeanPostProcessors`
+        + `initMessageSource`
+        + `initApplicationEventMulticaster`
+        + `onRefresh`
+        + `registerListeners`
+        + `finishBeanFactoryInitialization`
+        + `finishRefresh`
+    + catch 块
+        + `destroyBeans`
+        + `cancelRefresh`
+    + finally 块
+        + `resetCommonCaches`
+        
+        
+- `finishBeanFactoryInitialization` 完成 BeanFactory 初始化
+
 ## AbstractBeanFactory
 
+- `getMergedLocalBeanDefinition`
+    + 根据 beanName 获取 mergedBeanDefinitions 中 RootBeanDefinition 缓存
+    + 缓存为 null, 则根据 beanName 获取 BeanDefinition, 再进行 merge
+    + TODO
+    
    
 ## DefaultListableBeanFactory: BeanFactory 的默认实现
 
@@ -279,6 +292,28 @@
     + clearByTypeCache 清除所有假定的 byType mappings
     
 - `getBeanNamesForType`
+    + 判断条件,如果满足则调用 (_goto `doGetBeanNamesForType`_)
+        + 当前是否已`配置冻结` configurationFrozen(上下文完成初始化时会调用 `freezeConfiguration`)
+        (_goto `freezeConfiguration`_)
+        (_goto `AbstractApplicationContext.finishBeanFactoryInitialization`_)
+        + 传入的参数 type 值为 null
+        + allowEagerInit 值为 false, 不允许饥饿初始化
+    + otherwise: 根据参数 includeNonSingletons 选择是否包含非单例的 beanNameByType
+    + 取出对应 type 的 beanName 数组, 不等于 null 则返回
+    + otherwise: 调用 (_goto `doGetBeanNamesForType`_), 此时必然允许饥饿初始化, 即 allowEagerInit 传值 true
+    + 验证,保存缓存,返回
+- 🔒`doGetBeanNamesForType`
+    + 遍历 beanDefinitionNames(此时已注册的所有 BeanDefinition 名称)
+        + 处理非别名名称
+            + 获取已合并的本地 BeanDefinition (_goto `AbstractBeanFactory.getMergedLocalBeanDefinition`_)
+            + TODO
+    + TODO
+
+- `freezeConfiguration` 停止注册配置
+    + configurationFrozen = true
+    + copy `beanDefinitionNames` 赋值给 `frozenBeanDefinitionNames`, 
+    冻结后注册的 beanDefinition 无法进入 `frozenBeanDefinitionNames`
+    
 
 
 ## BeanDefinitionReaderUtils: BeanDefinition读取工具
