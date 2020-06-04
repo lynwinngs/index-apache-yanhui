@@ -48,6 +48,7 @@ public class SuperUser extends User {
                 "city='" + city + '\'' +
                 ", id=" + id +
                 ", name='" + name + '\'' +
+                ", beanName='" + beanName + '\'' +
                 '}';
     }
 }

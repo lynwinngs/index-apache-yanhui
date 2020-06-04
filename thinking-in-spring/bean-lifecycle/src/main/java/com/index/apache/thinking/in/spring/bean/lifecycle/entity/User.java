@@ -76,6 +76,7 @@ public class User implements BeanNameAware, InitializingBean, DisposableBean {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", beanName='" + beanName + '\'' +
                 '}';
     }
 
