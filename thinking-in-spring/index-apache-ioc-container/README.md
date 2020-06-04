@@ -227,7 +227,8 @@
             + `loadTimeWeaver`(类加载期织入) 判断 "loadTimeWeaver" bean 是否存在
                 + `new LoadTimeWeaverAwareProcessor` 具有 类加载期织入 意识的处理器, 添加到 `BeanPostProcessor` 列表
                 + `new ContextTypeMatchClassLoader` 用于织入的类加载器
-        + `registerBeanPostProcessors`
+        + `registerBeanPostProcessors` 注册 BeanPostProcessor
+            + (_goto `PostProcessorRegistrationDelegate.registerBeanPostProcessors`_)
         + `initMessageSource`
         + `initApplicationEventMulticaster`
         + `onRefresh`
@@ -246,11 +247,41 @@
 ## AbstractBeanFactory
 
 - `getMergedLocalBeanDefinition`
-    + 根据 beanName 获取 mergedBeanDefinitions 中 RootBeanDefinition 缓存
-    + 缓存为 null, 则根据 beanName 获取 BeanDefinition, 再进行 merge
-    + TODO
-    
-   
+    + 根据 `beanName` 获取 `mergedBeanDefinitions` 中 `RootBeanDefinition` 缓存
+    + 缓存为 null, 则根据 `beanName` 获取 `BeanDefinition`, 再进行 merge
+    + `synchronized(mergedBeanDefinitions)`
+        + RootBeanDefinition mbd = 取 `mergedBeanDefinitions` 中 `RootBeanDefinition` 缓存
+        (再次检查缓存, 与上面结合相当于 double check, 原因: 该方法可能会被单独调用)
+        + 如果没有缓存 或 缓存陈旧 `mbd == null || mbd.stale`
+            + 判断: 无 parent
+                + 参数 BeanDefinition bd is a `RootBeanDefinition`
+                    + clone 当前 `RootBeanDefinition` 赋值给 mbd
+                + otherwise
+                    + 对当前 `BeanDefinition` 新建副本 mbd = `new RootBeanDefinition(bd)`
+            + 有 parent
+                + 标准化 parentBeanName
+                + 当前 beanName 不等于 parentBeanName
+                    + 通过 parentBeanName 获取 `BeanDefinition` (_goto `getMergedBeanDefinition`_)
+                + otherwise 什么情况下会等于呢 **???**
+                    + 获取父 `BeanFactory`
+                    + 如果父 `BeanFactory` is a `ConfigurableBeanFactory`, 
+                    通过 parentBeanName 获取 `BeanDefinition` (_goto `getMergedBeanDefinition`_)
+                    + otherwise `throw new NoSuchBeanDefinitionException` 无法再获取该 BeanDefinition
+                + 对获得的父 `BeanDefinition` 新建副本 mbd = `new RootBeanDefinition(pbd)`
+                + 将当前 `BeanDefinition` 的属性覆盖到 父 `BeanDefinition` mbd
+                + 设置 scope
+                + 保存缓存
+        + 之前存在陈旧的缓存, 则覆盖原缓存
+    + 返回 RootBeanDefinition mbd
+    + 注: 整个过程获取的结果都使用数据源的副本, 对数据源并不做变更
+
+- `getMergedBeanDefinition`①
+    + 标准化 beanName
+    + 如果当前 `BeanFactory` 不包含 beanName, 且父 `BeanFactory` is a `ConfigurableBeanFactory`
+        + 通过 beanName 获取 `BeanDefinition` (_goto ①_)
+    + otherwise:
+        + (_goto `getMergedLocalBeanDefinition`_) 在本地 beanFactory 获取 mbd
+
 ## DefaultListableBeanFactory: BeanFactory 的默认实现
 
 - `registerBeanDefinition`: 注册 `BeanDefinition` 过程
@@ -292,7 +323,7 @@
     + clearByTypeCache 清除所有假定的 byType mappings
     
 - `getBeanNamesForType`
-    + 判断条件,如果满足则调用 (_goto `doGetBeanNamesForType`_)
+    + 判断条件,如果满足则调用 (_goto `doGetBeanNamesForType`_) 并返回结果
         + 当前是否已`配置冻结` configurationFrozen(上下文完成初始化时会调用 `freezeConfiguration`)
         (_goto `freezeConfiguration`_)
         (_goto `AbstractApplicationContext.finishBeanFactoryInitialization`_)
@@ -301,13 +332,15 @@
     + otherwise: 根据参数 includeNonSingletons 选择是否包含非单例的 beanNameByType
     + 取出对应 type 的 beanName 数组, 不等于 null 则返回
     + otherwise: 调用 (_goto `doGetBeanNamesForType`_), 此时必然允许饥饿初始化, 即 allowEagerInit 传值 true
-    + 验证,保存缓存,返回
+    + 验证,保存缓存,返回结果
+    
 - 🔒`doGetBeanNamesForType`
-    + 遍历 beanDefinitionNames(此时已注册的所有 BeanDefinition 名称)
+    + 遍历 `beanDefinitionNames`(此时已注册的所有 BeanDefinition 名称)
         + 处理非别名名称
             + 获取已合并的本地 BeanDefinition (_goto `AbstractBeanFactory.getMergedLocalBeanDefinition`_)
-            + TODO
-    + TODO
+            + 进行 bean definition 完成验证, 成功则加入返回列表
+    + 遍历 `manualSingletonNames` (手动加入的 Singleton Bean)
+        + 进行一些验证, 成功则加入返回列表
 
 - `freezeConfiguration` 停止注册配置
     + configurationFrozen = true
@@ -348,6 +381,7 @@
 ## PostProcessorRegistrationDelegate: 后处理注册代理
 
 - `invokeBeanFactoryPostProcessors`
+    + 声明 `Set<String> processedBeans`, 意为优先执行的 postProcessor, 后面执行其他 postProcessor 时,就会跳过这些
     + beanFactory is a `BeanDefinitionRegistry`
         + 声明 `List<BeanDefinitionRegistryPostProcessor> registryProcessors` 保存 `BeanDefinitionRegistryPostProcessor` 的实现实例
         + 声明 `List<BeanFactoryPostProcessor> regularPostProcessors` 保存 `BeanFactoryPostProcessor` 的实现
@@ -358,8 +392,34 @@
             + otherwise
                 + add to regularPostProcessors
         + 声明 `List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors` 保存当前注册的  `BeanDefinitionRegistryPostProcessor` 的实现实例
-        + beanFactory `getBeanNamesForType` 根据 `BeanDefinitionRegistryPostProcessor` 类型获取 beanName
+        + beanFactory `getBeanNamesForType` 根据 `BeanDefinitionRegistryPostProcessor` 类型获取 postProcessorNames
+        (取到的本质上是 beanNames, 实际就是取到目标类及其子类所有的 postProcessor 实例)
             + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_)
+        + 遍历优先级的 postProcessorNames (类实现了 `PriorityOrdered.class` 接口的)
+            + postProcessorName 添加到 `processedBeans` 
+            + 按顺序执行各实例的 `postProcessBeanDefinitionRegistry` 方法, BeanDefinition 注册后处理
+        + 遍历非优先级的, 有序的 postProcessorNames (类没有实现 `PriorityOrdered.class` 接口,实现了 `Ordered.class` 接口的)
+            + 步骤与上相同
+        + 遍历剩余的 postProcessorNames
+            + 步骤与上相同
+        + 循环调用各个 `BeanFactoryPostProcessor` 的 `postProcessBeanFactory` 实现
     + otherwise
         + 循环调用各个 `BeanFactoryPostProcessor` 的 `postProcessBeanFactory` 实现
-            
+    + beanFactory `getBeanNamesForType` 根据 `BeanFactoryPostProcessor` 类型获取 postProcessorNames
+        + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_)
+    + 通过 `processedBeans` 保存的记录, 跳过已执行的, 继续按 优先级, 有序, 剩余的顺序, 
+    对其余 `BeanFactoryPostProcessor` 实例调用 `postProcessBeanFactory` 实现
+    + 清除缓存
+        + 对 mergedBeanDefinition 做陈旧处理
+        + 清除一些勿用缓存
+
+- `registerBeanPostProcessors`
+    + 
+
+
+
+
+
+
+
+
