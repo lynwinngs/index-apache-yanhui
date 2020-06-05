@@ -229,9 +229,21 @@
                 + `new ContextTypeMatchClassLoader` 用于织入的类加载器
         + `registerBeanPostProcessors` 注册 BeanPostProcessor
             + (_goto `PostProcessorRegistrationDelegate.registerBeanPostProcessors`_)
-        + `initMessageSource`
+        + `initMessageSource` 国际化
+            + TODO
         + `initApplicationEventMulticaster`
-        + `onRefresh`
+            + 本地 BeanFactory 包含 `applicationEventMulticaster` bean(`ApplicationEventMulticaster.class`)
+                + 获取 bean 赋值 `applicationEventMulticaster` (_goto AbstractApplicationContext.getBean_)
+            + otherwise 
+                + `new SimpleApplicationEventMulticaster` 并赋值 `applicationEventMulticaster`
+                + 注册到共享单例 bean (_goto `DefaultListableBeanFactory.registerSingleton`_)
+        + `onRefresh` refresh 事件回调. 默认为空, 可对子类进行自定义扩展
+            + spring 对 一些 web context 提供了扩展实现
+                + `AbstractRefreshableWebApplicationContext`
+                + `GenericWebApplicationContext`
+                + `ReactiveWebServerApplicationContext`
+                + `ServletWebServerApplicationContext`
+                + `StaticWebApplicationContext` 
         + `registerListeners`
         + `finishBeanFactoryInitialization`
         + `finishRefresh`
@@ -245,6 +257,9 @@
 - `finishBeanFactoryInitialization` 完成 BeanFactory 初始化
 
 ## AbstractBeanFactory
+
+- `getBean`
+    + TODO
 
 - `getMergedLocalBeanDefinition`
     + 根据 `beanName` 获取 `mergedBeanDefinitions` 中 `RootBeanDefinition` 缓存
@@ -346,8 +361,6 @@
     + configurationFrozen = true
     + copy `beanDefinitionNames` 赋值给 `frozenBeanDefinitionNames`, 
     冻结后注册的 beanDefinition 无法进入 `frozenBeanDefinitionNames`
-    
-
 
 ## BeanDefinitionReaderUtils: BeanDefinition读取工具
 
@@ -395,6 +408,8 @@
         + beanFactory `getBeanNamesForType` 根据 `BeanDefinitionRegistryPostProcessor` 类型获取 postProcessorNames
         (取到的本质上是 beanNames, 实际就是取到目标类及其子类所有的 postProcessor 实例)
             + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_)
+            + 这里可以获得的默认实现
+                + ConfigurationClassPostProcessor
         + 遍历优先级的 postProcessorNames (类实现了 `PriorityOrdered.class` 接口的)
             + postProcessorName 添加到 `processedBeans` 
             + 按顺序执行各实例的 `postProcessBeanDefinitionRegistry` 方法, BeanDefinition 注册后处理
@@ -407,6 +422,9 @@
         + 循环调用各个 `BeanFactoryPostProcessor` 的 `postProcessBeanFactory` 实现
     + beanFactory `getBeanNamesForType` 根据 `BeanFactoryPostProcessor` 类型获取 postProcessorNames
         + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_)
+        + 这里可以获得的默认实现
+            + ConfigurationClassPostProcessor
+            + EventListenerMethodProcessor
     + 通过 `processedBeans` 保存的记录, 跳过已执行的, 继续按 优先级, 有序, 剩余的顺序, 
     对其余 `BeanFactoryPostProcessor` 实例调用 `postProcessBeanFactory` 实现
     + 清除缓存
@@ -414,12 +432,58 @@
         + 清除一些勿用缓存
 
 - `registerBeanPostProcessors`
-    + 
+    + beanFactory `getBeanNamesForType` 根据 `BeanPostProcessor` 类型获取 postProcessorNames
+        + (_goto `DefaultListableBeanFactory.getBeanNamesForType`_) 
+        + 这里可以获得的默认实现
+            + AutowiredAnnotationBeanPostProcessor
+            + CommonAnnotationBeanPostProcessor
+    + `addBeanPostProcessor` BeanPostProcessorChecker, 添加到 `BeanPostProcessor` 列表
+        + `new BeanPostProcessorChecker` 用于检查 BeanPostProcessor 实例化期间被创建的 bean, 当 bean 不能被所有 bpp 处理 **???**
+    + 遍历 BeanPostProcessor
+        + 如果实现 `PriorityOrdered.class`
+            + 获取 `BeanPostProcessor` 实例 (_goto `AbstractBeanFactory.getBean`_)
+            + 添加到 优先级列表
+            + 如果实现 `MergedBeanDefinitionPostProcessor.class`
+                + 添加到 内部列表
+        + 如果实现 `Ordered.class`
+            + 添加到 有序(仅名称)列表
+        + otherwise
+            + 添加到 无序(仅名称)列表
+    + 排序 优先级列表, 并注册 `BeanPostProcessor` 到 beanFactory (`registerBeanPostProcessors`)
+    + 对 有序列表, 无序列表 重复上一步操作
+    + 重新添加内部列表中的 `BeanPostProcessor` 
+    (内部列表的 `BeanPostProcessor` 将被移除后重新添加 beanFactory beanPostProcessor 列表末尾)
+    + 重新添加 ApplicationListenerDetector, 将其移动到处理器链的末端(用于拾取代理等) **???**
 
 
+## 默认 PostProcessor 实现
 
+### BeanFactoryPostProcessor
 
+- ConfigurationClassPostProcessor
+    + 解析(或者注册 **???**)阶段注册 BeanDefinition
+    + refresh - invokeBeanFactoryPostProcessors 实例化并调用
+- EventListenerMethodProcessor
+    + 解析(或者注册 **???**)阶段注册 BeanDefinition
+    + refresh - invokeBeanFactoryPostProcessors 实例化并调用
+### BeanPostProcessor
 
-
-
-
+- AutowiredAnnotationBeanPostProcessor
+    + 解析(或者注册 **???**)阶段注册 BeanDefinition
+    + refresh - registerBeanPostProcessors 实例化
+- CommonAnnotationBeanPostProcessor
+    + 解析(或者注册 **???**)阶段注册 BeanDefinition
+    + refresh - registerBeanPostProcessors 实例化
+- ApplicationContextAwareProcessor 
+    + refresh - prepareBeanFactory 阶段添加
+- ApplicationListenerDetector
+    + refresh - prepareBeanFactory 阶段添加
+    + refresh - registerBeanPostProcessor 阶段添加
+- LoadTimeWeaverAwareProcessor
+    + 如果存在 loadTimeWeaver bean
+    + refresh - prepareBeanFactory 阶段添加
+    + refresh - invokeBeanFactoryPostProcessor 阶段添加
+- ConfigurationClassPostProcessor$ImportAwareBeanPostProcessor
+    + refresh - invokeBeanFactoryPostProcessors 阶段添加
+- PostProcessorRegistrationDelegate$BeanPostProcessorChecker
+    + refresh - registerBeanPostProcessors 阶段添加
