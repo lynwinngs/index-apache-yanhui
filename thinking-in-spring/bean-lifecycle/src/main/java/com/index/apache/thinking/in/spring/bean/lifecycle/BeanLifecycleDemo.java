@@ -9,7 +9,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
 /**
- * TODO
+ * Bean 生命周期 示例
  *
  * @Author xiaoxuezhi
  * @DATE 2020/6/4 9:32

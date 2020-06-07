@@ -25,44 +25,45 @@ import java.util.Optional;
  * @Version 1.0
  **/
 @Component
-//@Conditional(FalseConditional.class)
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+////@Conditional(FalseConditional.class)
+//@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@ComponentScan("com.index.apache.thinking.in.spring.dependency.injection.setter")
 public class AnnotationDependencyInjectionResolutionDemo {
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    // ObjectProvider注入：包装 -> Optional注入（包装 -> 普通注入）
-    @Autowired
-    private ObjectProvider<Optional<LookupIocService>> optionalObjectProvider;
-
-    // ObjectProvider注入：包装 -> 普通注入
-    @Autowired
-    private ObjectProvider<LookupIocService> lookupIocServiceObjectProvider;
-
-    // Optional注入：包装 -> 普通注入
-    @Autowired
-    private Optional<LookupIocService> lookupIocServiceOptional;
-
-    // 延迟注入： cglib 动态代理
-    @Autowired
-    @Lazy
-    private LookupIocService lazyLookupIocService;
-
-    // 集合注入： 处理集合类型 -> 查找依赖候选 -> 类型转变
-    @Inject
-    private List<IocService> iocServiceList;
-
-    // 核心方法：
-    // 解析依赖方法 org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency
-    // 查找依赖候选 org.springframework.beans.factory.support.DefaultListableBeanFactory#findAutowireCandidates
-    // 普通注入：
-    // 查找依赖候选 -> 条件过滤 -> 根据名称，类型获取容器中的 bean 实例
-    @MyInject
-    private IocService iocService;
-
-    @MyAutowired
-    private LookupIocService lookupIocService;
+//    @Autowired
+//    private ApplicationContext applicationContext;
+//
+//    // ObjectProvider注入：包装 -> Optional注入（包装 -> 普通注入）
+//    @Autowired
+//    private ObjectProvider<Optional<LookupIocService>> optionalObjectProvider;
+//
+//    // ObjectProvider注入：包装 -> 普通注入
+//    @Autowired
+//    private ObjectProvider<LookupIocService> lookupIocServiceObjectProvider;
+//
+//    // Optional注入：包装 -> 普通注入
+//    @Autowired
+//    private Optional<LookupIocService> lookupIocServiceOptional;
+//
+//    // 延迟注入： cglib 动态代理
+//    @Autowired
+//    @Lazy
+//    private LookupIocService lazyLookupIocService;
+//
+//    // 集合注入： 处理集合类型 -> 查找依赖候选 -> 类型转变
+//    @Inject
+//    private List<IocService> iocServiceList;
+//
+//    // 核心方法：
+//    // 解析依赖方法 org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency
+//    // 查找依赖候选 org.springframework.beans.factory.support.DefaultListableBeanFactory#findAutowireCandidates
+//    // 普通注入：
+//    // 查找依赖候选 -> 条件过滤 -> 根据名称，类型获取容器中的 bean 实例
+//    @MyInject
+//    private IocService iocService;
+//
+//    @MyAutowired
+//    private LookupIocService lookupIocService;
 
     @Bean
     public static AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor() {
@@ -89,6 +90,5 @@ public class AnnotationDependencyInjectionResolutionDemo {
 
         applicationContext.close();
     }
-
 }
                                                   

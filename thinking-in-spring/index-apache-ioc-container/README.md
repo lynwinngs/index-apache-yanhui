@@ -17,23 +17,7 @@
         + `new DefaultListableBeanFactory`
     + `new AnnotatedBeanDefinitionReader`: 注解的 `BeanDefinition` 读取器(_goto `AnnotatedBeanDefinitionReader.new`_)
     + `new ClassPathBeanDefinitionScanner`: ClassPath 内的 BeanDefinition 扫描器
-        + `registerDefaultFilters`
-            + 添加 `@Component` 注解的过滤
-                + 考虑元注解
-                + 不考虑子类继承
-                + 不考虑接口
-            + 如果存在 `@ManagerBean` 注解(JSR-250)存在, 添加 `@ManagedBean` 注解的过滤
-                + 不考虑元注解
-                + 不考虑子类继承
-                + 不考虑接口
-            + 如果存在 `@Named` 注解(JSR-330)存在, 添加 `@Named` 注解的过滤
-                + 不考虑元注解
-                + 不考虑子类继承
-                + 不考虑接口
-        + `setEnvironment`
-        + `setResourceLoader`
-            + `CandidateComponentsIndexLoader.loadIndex`
-                + 加载 META-INF/spring.components 中的组件到 `CandidateComponentsIndex componentsIndex` **???**
+        + (_goto `ClassPathBeanDefinitionScanner.new`_) 
 - `register`
     + `AnnotatedBeanDefinitionReader.register(Class ...)` 注册组件(_goto `AnnotatedBeanDefinitionReader.register`_)
 
@@ -340,12 +324,12 @@
     + 包含@Component, @ComponentScan, @Import, @ImportResource 或包含 @Bean标记 lite
     + 其他非候选者
 
-### ConfigurationClassParser
+### ConfigurationClassParser 配置类解析
 
 - `parse` 解析 ConfigurationClass
     + 遍历参数(配置候选者)
         + 获取候选者的 BeanDefinition, 根据 BeanDefinition 的 metaData 进行解析 (_goto `processConfigurationClass`_)
-    + (_goto `DeferredImportSelectorHandler.process`_)
+    + (_goto inner class `DeferredImportSelectorHandler.process`_)
     
 - `processConfigurationClass` 处理 ConfigurationClass
     + 通过 ConditionEvaluate 进行条件判断, 是否跳过
@@ -357,13 +341,73 @@
     + TODO
     
 - `doProcessConfigurationClass` (解析 Spring 组件的关键步骤. 
-@Component, @ComponentScan, @Import, @ImportResource, @Bean 全部变成 BeanDefinition)
-    + TODO
+@Component, @ComponentScan, @Import, @ImportResource, @Bean 全部加载至 ConfigurationClass 实例内, 
+再在 ConfigurationClassBeanDefinitionReader 中注册成 BeanDefinition )
+    + 处理有 @Component 注解的 
+        + 如果内部类也有, 则继续递归, 最后全部添加 `configurationClasses` 缓存中
+    + 处理有 @PropertySource 注解的 
+        + 获取该类标注的 @PropertySource 的属性值, 将属性转换成 AnnotationAttributes 对象, 
+        将 name 保存至 `propertySourceNames` 缓存中
+    + 处理有 @ComponentScan 注解的 
+        + 获取该类标注的 @ComponentScan 的属性值, 将属性转换成 AnnotationAttributes 对象
+        + 解析属性, 获取扫描包下所有 BeanDefinitionHolder 集合 (_goto `ComponentScanAnnotationParser.parse`_)
+        + 遍历集合检查是否为配置类, 如果是则进行解析 (_goto `ConfigurationClassParser.processConfigurationClass`_).
+        本质上就是递归解析 ConfigurationClass
+    + 处理有 @Import 注解的 (_goto `processImports`_)
+    + 处理有 @ImportResource 注解的 
+    + 处理有 @Bean 注解的 
+    + 处理默认接口
+    + 处理 super class
+
     
 - class DeferredImportSelectorHandler
     + `process`
         + TODO
 
+### ComponentScanAnnotationParser: @ComponentScan 注解解析器
+
+- `parse` 解析注解属性信息 AnnotationAttributes
+    + `new ClassPathBeanDefinitionScanner` 扫描器 (_goto `ClassPathBeanDefinitionScanner.new`_)
+    + 进行一系列验证, 属性转换操作 (TODO)
+    + 执行扫描 (_goto `ClassPathBeanDefinitionScanner.doScan`_)
+
+
+### ClassPathBeanDefinitionScanner
+
+- `new`
+    + `registerDefaultFilters`
+        + 添加 `@Component` 注解的过滤
+            + 考虑元注解
+            + 不考虑子类继承
+            + 不考虑接口
+        + 如果存在 `@ManagerBean` 注解(JSR-250)存在, 添加 `@ManagedBean` 注解的过滤
+            + 不考虑元注解
+            + 不考虑子类继承
+            + 不考虑接口
+        + 如果存在 `@Named` 注解(JSR-330)存在, 添加 `@Named` 注解的过滤
+            + 不考虑元注解
+            + 不考虑子类继承
+            + 不考虑接口
+    + `setEnvironment`
+    + `setResourceLoader`
+        + `CandidateComponentsIndexLoader.loadIndex`
+            + 加载 `META-INF/spring.components` 中的组件到 `CandidateComponentsIndex componentsIndex` 
+                + 如果在配置文件配置了要解析的类, 其他没有配置的类, 即使标注了 `@Component`, 包扫描时也不会把他们放在容器管理.
+                因为设置了这个配置, 在构建时就已经设定好了扫描目标, 其他类根本就不会被考虑.
+                (放在缓存中, 扫描时, 如果缓存有数据则只处理缓存中的类, 如果没有再对设定的包进行全包遍历)
+                + 删库跑路什么的是会进监狱的, 想要坑你的坏东家, 就用这招吧, 他们死也查不出来 `@Component` 为什么没被容器加载
+            + 如果没有配置文件, 则会扫描所有被模式注解标注的类
+            
+- `doScan` 执行扫描逻辑
+    + 循环所有目标包
+        + 查找包下候选组件 `findCandidateComponents`
+            + 如果 `componentsIndex` 缓存不为空(参考 `META-INF/spring.components` 的说明), 则处理配置的类
+                + new AnnotatedGenericBeanDefinition 放入缓存, 等待后续操作进行注册
+            + 如果 `componentsIndex` 缓存为空, 则对包下类进行遍历分析
+                + 如果属于模式注解标注的类, 则 new ScannedGenericBeanDefinition 放入缓存,等待后续操作进行注册
+        + 补充一些 BeanDefinition 配置信息
+        + `BeanDefinitionReaderUtils` 注册 `BeanDefinition` (_goto `BeanDefinitionReaderUtils.registerBeanDefinition`_)
+        + 返回 BeanDefinitionHolder 集合
 
 ## 相关 BeanFactoryPostProcessor 接口
 
@@ -398,7 +442,7 @@ refresh - invokeBeanFactoryPostProcessors 实例化并调用
     + 遍历候选
         + 解析 (_goto `ConfigurationClassParser.parse`_)
         + 校验 (_goto `ConfigurationClassParser.validate`_)
-        + 读取配置类的 BeanDefinition (_goto `ConfigurationClassBeanDefinitionReader.loadBeanDefinitions`_)
+        + 根据解析结果, 加载 BeanDefinition (_goto `ConfigurationClassBeanDefinitionReader.loadBeanDefinitions`_)
         + 再次检查其他 beanDefinition 是否可作为候选
         + 注册 SingletonBean `ImportStack.class` (_goto `DefaultListableBeanFactory.registerSingleton`_)
         + 清缓存
@@ -565,5 +609,5 @@ refresh - invokeBeanFactoryPostProcessors 实例化并调用
    
 ### ConfigurationClassBeanDefinitionReader 配置类的 BeanDefinition 读取器
 
-- `loadBeanDefinitions`
+- `loadBeanDefinitions` 将 ConfigurationClass 实例的属性加载成 BeanDefinition
     + TODO
