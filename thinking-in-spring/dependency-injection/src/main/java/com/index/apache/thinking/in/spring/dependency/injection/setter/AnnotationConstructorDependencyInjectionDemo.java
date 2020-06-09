@@ -4,6 +4,7 @@ import com.index.apache.thinking.in.spring.beans.entity.User;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @DATE 2020/4/26 11:48
  * @Version 1.0
  **/
-@Component
+@Import(AnnotationFieldDependencyInjectionDemo .class)
 public class AnnotationConstructorDependencyInjectionDemo {
 
     public static void main(String[] args) {

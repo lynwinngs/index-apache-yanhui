@@ -353,7 +353,9 @@
         + 解析属性, 获取扫描包下所有 BeanDefinitionHolder 集合 (_goto `ComponentScanAnnotationParser.parse`_)
         + 遍历集合检查是否为配置类, 如果是则进行解析 (_goto `ConfigurationClassParser.processConfigurationClass`_).
         本质上就是递归解析 ConfigurationClass
-    + 处理有 @Import 注解的 (_goto `processImports`_)
+    + 处理有 @Import 注解的
+        + 获取 @Import value值对应的类信息, 反射出对应类
+        + 如果当前配置类已在 importStack 缓存中, 说明存在循环依赖问题
     + 处理有 @ImportResource 注解的 
     + 处理有 @Bean 注解的 
     + 处理默认接口
@@ -373,6 +375,8 @@
 
 
 ### ClassPathBeanDefinitionScanner
+
+extends ClassPathScanningCandidateComponentProvider
 
 - `new`
     + `registerDefaultFilters`
@@ -559,6 +563,8 @@ refresh - invokeBeanFactoryPostProcessors 实例化并调用
                 + 创建 `BeanDefinitionParserDelegate` 代理
                 + 判断命名空间的 `profile`, 与当前不符则 return
                 + `preProcessXml`: xml 前处理, 默认无实现, 可继承 `DefaultBeanDefinitionDocumentReader` 进行自定义扩展
+                (`XmlBeanDefinitionReader` 使用了组合模式, 组合了 `BeanDefinitionDocumentReader` 的实现, 
+                可以继承 `DefaultBeanDefinitionDocumentReader` 后, 使用 `setDocumentReaderClass` 方法进行覆盖)
                 + `parseBeanDefinitions`: 解析 `BeanDefinition`
                     + 遍历节点元素(按照文件中元素的声明顺序)
                         + `parseDefaultElement`: 解析元素

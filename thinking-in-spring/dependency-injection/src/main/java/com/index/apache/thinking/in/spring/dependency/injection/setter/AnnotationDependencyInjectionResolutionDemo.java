@@ -27,7 +27,7 @@ import java.util.Optional;
 @Component
 ////@Conditional(FalseConditional.class)
 //@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@ComponentScan("com.index.apache.thinking.in.spring.dependency.injection.setter")
+@Import(AnnotationFieldDependencyInjectionDemo.class)
 public class AnnotationDependencyInjectionResolutionDemo {
 
 //    @Autowired

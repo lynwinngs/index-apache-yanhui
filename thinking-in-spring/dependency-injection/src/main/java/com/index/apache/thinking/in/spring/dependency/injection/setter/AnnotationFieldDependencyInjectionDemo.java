@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
@@ -15,6 +17,7 @@ import javax.annotation.Resource;
  * @DATE 2020/4/26 11:48
  * @Version 1.0
  **/
+@Import(AnnotationConstructorDependencyInjectionDemo.class)
 public class AnnotationFieldDependencyInjectionDemo {
 
     @Autowired
